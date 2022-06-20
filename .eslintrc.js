@@ -17,5 +17,7 @@ module.exports = {
   },
   rules: {
     'react/react-in-jsx-scope': 'off',
+    'no-useless-computed-key': 'off',
+    'import/extensions': 'off',
   },
 };
