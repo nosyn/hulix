@@ -1,4 +1,6 @@
-import type { NextPage } from "next";
+import type { NextPage } from 'next';
+
+import { Text } from '@mantine/core';
 
 interface StarRatingProps {
   stars: number;
@@ -6,24 +8,15 @@ interface StarRatingProps {
   extraText?: string;
 }
 
-const StarRating: NextPage<StarRatingProps> = ({
-  stars = 0,
-  maximum,
-  extraText = "",
-}) => {
+const StarRating: NextPage<StarRatingProps> = ({ stars = 0, maximum, extraText = '' }) => {
   return (
     <div>
-      {new Array(maximum).fill("").map((_, index) => (
-        <span
-          key={index}
-          className={`text-xl ${
-            index < stars ? "text-orange" : "text-gray-300"
-          }`}
-        >
+      {new Array(maximum).fill('').map((_, index) => (
+        <Text component="span" key={index} size="xl" color={index < stars ? 'orange' : 'gray'}>
           &#9733;
-        </span>
+        </Text>
       ))}
-      <span>{extraText}</span>
+      <Text component="span">{extraText}</Text>
     </div>
   );
 };
