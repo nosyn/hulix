@@ -19,5 +19,6 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'no-useless-computed-key': 'off',
     'import/extensions': 'off',
+    'arrow-body-style': 'off',
   },
 };
