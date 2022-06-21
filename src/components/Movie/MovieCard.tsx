@@ -1,9 +1,10 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import { imageResize } from '../../utils/constants';
+import { Anchor, Text } from '@mantine/core';
+import { imageResize } from '@/utils/constants';
 
-import Image from '../Shared/Image';
-import { Item } from '../../utils/types';
+import Image from '@/components/Shared/Image';
+import { Item } from '@/utils/types';
 
 interface MovieCardProps {
   item: Item;
@@ -12,38 +13,23 @@ interface MovieCardProps {
 }
 
 const MovieCard: NextPage<MovieCardProps> = ({ item, height, width }) => (
-  <Link href={item.media_type === 'tv' ? `/tv/${item.id}` : `/movie/${item.id}`}>
-    <a>
-      <div
+  <Link href={item.media_type === 'tv' ? `/tv/${item.id}` : `/movie/${item.id}`} passHref>
+    <Anchor>
+      <Image fit="cover" height={height} width={width} src={imageResize(item.poster_path)} alt="" />
+      <Text
+        p="xs"
         style={{
-          display: 'flex',
           overflow: 'hidden',
-          flexDirection: 'column',
-          alignItems: 'center',
-          borderRadius: '0.5rem',
-          cursor: 'pointer',
+          transitionProperty:
+            'background-color, border-color, color, fill, stroke, opacity, box-shadow, transform',
+          transitionDuration: '300ms',
+          width: '100%',
+          height: '60px',
         }}
       >
-        <Image
-          style={{ height, width, objectFit: 'cover' }}
-          src={imageResize(item.poster_path)}
-          alt=""
-        />
-        <p
-          style={{
-            overflow: 'hidden',
-            padding: '0.5rem',
-            transitionProperty:
-              'background-color, border-color, color, fill, stroke, opacity, box-shadow, transform',
-            transitionDuration: '300ms',
-            width: '100%',
-            height: '60px',
-          }}
-        >
-          {item.title || item.name}
-        </p>
-      </div>
-    </a>
+        {item.title || item.name}
+      </Text>
+    </Anchor>
   </Link>
 );
 

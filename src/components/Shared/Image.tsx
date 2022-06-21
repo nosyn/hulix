@@ -1,46 +1,21 @@
-import { FC, HTMLProps, useEffect, useRef, useState } from 'react';
+import { Image as MIMage } from '@mantine/core';
+import type { ImageProps as MImageProps } from '@mantine/core';
+import { Ref, useState } from 'react';
 
-interface ImageProps {
-  opacity?: number;
-  src: string;
+interface ImageProps extends MImageProps {
+  ref?: Ref<HTMLDivElement>;
 }
 
-const Image: FC<HTMLProps<HTMLImageElement> & ImageProps> = ({
-  style,
-  crossOrigin: _,
-  opacity = 1,
-  src,
-  ...others
-}) => {
-  const [loaded, setLoaded] = useState(false);
-  const [realSrc, setRealSrc] = useState('');
-
-  const imageRef = useRef<HTMLImageElement>(null);
-
-  useEffect(() => {
-    const handler = () => {
-      setLoaded(true);
-    };
-
-    imageRef.current?.addEventListener('load', handler);
-
-    setRealSrc(src);
-
-    return () => imageRef.current?.removeEventListener('load', handler);
-  }, [src]);
+const Image = ({ ...rest }: ImageProps) => {
+  const [error, setError] = useState(false);
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      ref={imageRef}
-      style={{
-        ...style,
-        transition: '0.5s',
-        opacity: loaded ? opacity : 0,
+    <MIMage
+      {...rest}
+      onError={() => {
+        setError(true);
       }}
-      alt=""
-      src={realSrc}
-      {...others}
+      withPlaceholder={error}
     />
   );
 };

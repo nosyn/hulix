@@ -10,7 +10,7 @@ import { getHomeData } from '../utils/api';
 import { imageOriginal, imageResize } from '../utils/constants';
 import { Item } from '../utils/types';
 import MovieSlider from '../components/Movie/MovieSlider';
-import CustomImage from '@/components/Shared/CustomImage';
+import Image from '@/components/Shared/Image';
 
 interface HomePageProps {
   data: {
@@ -42,7 +42,7 @@ const HomePage: NextPage<HomePageProps> = ({ data, main }) => {
           },
         })}
       >
-        <CustomImage
+        <Image
           ref={imageRef}
           src={imageOriginal(main.backdrop_path)}
           fit="cover"
@@ -130,7 +130,7 @@ const HomePage: NextPage<HomePageProps> = ({ data, main }) => {
             },
           })}
         >
-          <CustomImage
+          <Image
             sx={() => ({
               zIndex: 10,
               borderRadius: '0.75rem',
@@ -145,7 +145,7 @@ const HomePage: NextPage<HomePageProps> = ({ data, main }) => {
         </Box>
       </Box>
 
-      {/* {Object.keys(data).map((item, index) => (
+      {Object.keys(data).map((item, index) => (
         <Fragment key={item}>
           <Title
             sx={() => ({
@@ -164,7 +164,7 @@ const HomePage: NextPage<HomePageProps> = ({ data, main }) => {
           </Title>
           <MovieSlider data={data[item]} />
         </Fragment>
-      ))} */}
+      ))}
     </>
   );
 };
