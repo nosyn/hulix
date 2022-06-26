@@ -8,4 +8,4 @@ export const imageOriginal = (src: string) => `${TMDB_IMAGE}original${src}`;
 export const embedMovie = (id: number) =>
   EMBED_MOVIE_SOURCE ? `${EMBED_MOVIE_SOURCE}/movie?id=${id}` : '';
 export const embedEpisode = (id: number, season: number, episode: number) =>
-  `${EMBED_MOVIE_SOURCE}/tv?id=${id}&s=${season}&e=${episode}`;
+  EMBED_MOVIE_SOURCE ? `${EMBED_MOVIE_SOURCE}/tv?id=${id}&s=${season}&e=${episode}` : '';
