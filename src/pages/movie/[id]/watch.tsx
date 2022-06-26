@@ -1,15 +1,17 @@
 import Link from 'next/link';
 import type { GetStaticPaths, GetStaticProps, NextPage } from 'next';
+import { Anchor, Box, Text, Title } from '@mantine/core';
 
 // Components
 import Image from '@/components/Shared/Image';
 import Meta from '@/components/Shared/Meta';
-import StarRating from '@/components/Display/StarRating';
+import StarRating from '@/components/Shared/StarRating';
 
 // Utils
 import { embedMovie, imageOriginal, imageResize } from '@/utils/constants';
 import { Detail, Item } from '@/utils/types';
 import { getWatchMovieContent } from '@/utils/api';
+import { HEADER_HEIGHT } from '@/components/Layout/Header';
 
 interface WatchMovieProps {
   data: Detail;
@@ -24,51 +26,135 @@ const WatchMovie: NextPage<WatchMovieProps> = ({ similar, data }) => {
         description="Watch the movie"
         image={imageOriginal(data.backdrop_path)}
       />
-      <div className="mt-28 flex flex-col lg:flex-row px-5 lg:px-20 gap-8">
-        <div className="flex-grow">
-          <div className="relative h-0 w-full" style={{ paddingBottom: '56.25%' }}>
+      <Box
+        sx={() => ({
+          display: 'flex',
+          marginTop: `${HEADER_HEIGHT + 20}px`,
+          flexDirection: 'column',
+          gap: '2rem',
+          ['@media (min-width: 1024px)']: {
+            paddingLeft: '5rem',
+            paddingRight: '5rem',
+            flexDirection: 'row',
+          },
+        })}
+        px="xl"
+      >
+        <Box
+          style={{
+            flexGrow: 1,
+          }}
+        >
+          <Box style={{ paddingBottom: '56.25%', position: 'relative', width: '100%', height: 0 }}>
             <iframe
               title={data.title}
-              className="absolute top-0 left-0 w-full h-full"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+              }}
               src={embedMovie(data.id)}
               frameBorder="0"
               allowFullScreen
             />
-          </div>
-          <div className="my-10 flex flex-col items-start gap-4">
-            <Link href={`/movie/${data.id}`}>
-              <a className="text-2xl hover:text-orange transition">{data.title}</a>
+          </Box>
+          <Box
+            style={{
+              display: 'flex',
+              marginTop: '2.5rem',
+              marginBottom: '2.5rem',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              gap: '1rem',
+            }}
+          >
+            <Link href={`/movie/${data.id}`} passHref>
+              <Anchor
+                sx={(theme) => ({
+                  transitionProperty:
+                    'background-color, border-color, color, fill, stroke, opacity, box-shadow, transform',
+                  fontSize: '1.5rem',
+                  lineHeight: '2rem',
+                  '&:hover': {
+                    color: theme.colors.orange,
+                  },
+                })}
+              >
+                {data.title}
+              </Anchor>
             </Link>
-            <p>{data.overview}</p>
-            <p>Release Date: {data.release_date}</p>
+            <Text>{data.overview}</Text>
+            <Text>Release Date: {data.release_date}</Text>
             <StarRating
               maximum={10}
               stars={Math.round(data.vote_average)}
               extraText={` (${data.vote_count} votes)`}
             />
-          </div>
-        </div>
-        <div className="flex-shrink-0 w-full lg:w-80 flex flex-col gap-4 overflow-y-auto lg:max-h-screen">
-          <h1 className="text-xl">Similar Movies</h1>
-          {similar.map((item) => (
-            <Link key={item.id} href={`/movie/${item.id}`}>
-              <a>
-                <div className="flex gap-4 pr-5 group cursor-pointer">
-                  <Image
-                    className="w-[80px] h-[120px] object-cover group-hover:brightness-75 transition duration-300"
-                    src={imageResize(item.poster_path, 'w92')}
-                    alt=""
-                  />
-                  <div className="py-3 group-hover:text-orange transition duration-300">
-                    <h1>{item.title}</h1>
-                    <StarRating stars={Math.round(item.vote_average / 2)} maximum={5} />
-                  </div>
-                </div>
-              </a>
-            </Link>
-          ))}
-        </div>
-      </div>
+          </Box>
+        </Box>
+        <Box>
+          <Title order={2}>Similar Movies</Title>
+          <Box
+            sx={() => ({
+              display: 'flex',
+              overflowY: 'auto',
+              flexDirection: 'column',
+              flexShrink: 0,
+              width: '100%',
+              gap: '1rem',
+              maxHeight: '400px',
+              position: 'relative',
+              ['@media (min-width: 1024px)']: {
+                width: '20rem',
+                maxHeight: '80vh',
+              },
+            })}
+            mb="lg"
+          >
+            {similar.map((item) => (
+              <Link key={item.id} href={`/movie/${item.id}`} passHref>
+                <Anchor mb="xs">
+                  <Box
+                    style={{
+                      display: 'flex',
+                      paddingRight: '1.25rem',
+                      cursor: 'pointer',
+                      gap: '1rem',
+                    }}
+                  >
+                    <Image
+                      style={{
+                        objectFit: 'cover',
+                        transitionProperty:
+                          'background-color, border-color, color, fill, stroke, opacity, box-shadow, transform',
+                        transitionDuration: '300ms',
+                        width: '92px',
+                        height: '120px',
+                      }}
+                      src={imageResize(item.poster_path, 'w92')}
+                      alt=""
+                    />
+                    <Box
+                      style={{
+                        paddingTop: '0.75rem',
+                        paddingBottom: '0.75rem',
+                        transitionProperty:
+                          'background-color, border-color, color, fill, stroke, opacity, box-shadow, transform',
+                        transitionDuration: '300ms',
+                      }}
+                    >
+                      <Title order={6}>{item.title}</Title>
+                      <StarRating stars={Math.round(item.vote_average / 2)} maximum={5} />
+                    </Box>
+                  </Box>
+                </Anchor>
+              </Link>
+            ))}
+          </Box>
+        </Box>
+      </Box>
     </>
   );
 };

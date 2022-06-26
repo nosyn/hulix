@@ -1,14 +1,30 @@
-import { Detail, Season } from "../../../utils/types";
-import { Fragment, useState } from "react";
-import { GetStaticPaths, GetStaticProps } from "next";
-import { imageOriginal, imageResize } from "../../../utils/constants";
+import Link from 'next/link';
+import { GetStaticPaths, GetStaticProps } from 'next';
+import type { NextPage } from 'next';
+import { Fragment, useState } from 'react';
 
-import Image from "../../../components/Shared/Image";
-import Link from "next/link";
-import Meta from "../../../components/Shared/Meta";
-import type { NextPage } from "next";
-import StarRating from "../../../components/Display/StarRating";
-import { getTVSeasons } from "../../../utils/api";
+// Mantine UI
+import {
+  Anchor,
+  Box,
+  Container,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Title,
+  TypographyStylesProvider,
+} from '@mantine/core';
+
+// Utils
+import { Detail, Season } from '@/utils/types';
+import { imageOriginal, imageResize } from '@/utils/constants';
+import { getTVSeasons } from '@/utils/api';
+
+// Components
+import Image from '@/components/Shared/Image';
+import Meta from '@/components/Shared/Meta';
+import StarRating from '@/components/Shared/StarRating';
 
 interface WatchTVProps {
   seasons: Season[];
@@ -26,102 +42,178 @@ const WatchTV: NextPage<WatchTVProps> = ({ seasons, data }) => {
         image={imageOriginal(data.backdrop_path)}
       />
 
-      <div className="flex justify-center">
-        <div className="mt-24 md:mx-20 w-full max-w-4xl mx-6">
-          <div className="flex gap-4 flex-col md:flex-row">
-            <div className="md:w-[200px] w-full h-full flex justify-center items-center flex-shrink-0">
-              <Image src={imageResize(data.poster_path)} alt="" />
-            </div>
-            <div className="flex flex-col items-start gap-3 flex-grow">
-              <Link href={`/tv/${data.id}`}>
-                <a>
-                  <h1 className="text-2xl hover:text-orange transition cursor-pointer">
-                    {data.name}
-                  </h1>
-                </a>
+      <Container px={0} pt="xl">
+        <Box px="xl" mt="xl">
+          <Group align="start">
+            <Image
+              style={{
+                margin: '0 auto',
+              }}
+              src={imageResize(data.poster_path)}
+              alt=""
+            />
+
+            <Group
+              direction="column"
+              sx={() => ({
+                flexGrow: 1,
+              })}
+            >
+              <Link href={`/tv/${data.id}`} passHref>
+                <Anchor>
+                  <Title>{data.name}</Title>
+                </Anchor>
               </Link>
-              <p className="text-justify">{data.overview}</p>
-              <p className="text-gray-400">{data.last_air_date}</p>
+              <Text
+                align="justify"
+                style={{
+                  maxWidth: '568px',
+                }}
+              >
+                <TypographyStylesProvider>{data.overview}</TypographyStylesProvider>
+              </Text>
+              <Text size="sm">{data.last_air_date}</Text>
               <StarRating
                 stars={Math.round(data.vote_average)}
                 maximum={10}
                 extraText={` (${data.vote_count} votes)`}
               />
-            </div>
-          </div>
-          <h1 className="text-2xl mb-8 mt-12">Seasons</h1>
+            </Group>
+          </Group>
+          <Title order={1} my="md">
+            Seasons
+          </Title>
           {seasons.map((item) => (
             <Fragment key={item.season_number}>
-              <div
-                className="flex gap-4 mt-4 bg-dark-lighten rounded-2xl overflow-hidden cursor-pointer hover:brightness-90 transition duration-300"
+              <Paper
+                withBorder
+                shadow="sm"
+                p="md"
+                mt="md"
+                radius="lg"
+                sx={(theme) => ({
+                  display: 'flex',
+                  overflow: 'hidden',
+                  gap: '1rem',
+                  transitionProperty:
+                    'background-color, border-color, color, fill, stroke, opacity, box-shadow, transform',
+                  transitionDuration: '300ms',
+                  cursor: 'pointer',
+                  backgroundColor:
+                    theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+
+                  '&:hover': {
+                    backgroundColor:
+                      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[3],
+                  },
+                })}
                 onClick={() =>
                   opened === item.season_number
                     ? setOpened(undefined)
                     : setOpened(item.season_number)
                 }
               >
-                <div className="w-[154px] h-[231px] flex-shrink-0">
-                  <Image
-                    className="w-full h-full"
-                    src={imageResize(item.poster_path, "w154")}
-                    alt=""
-                  />
-                </div>
-                <div className="flex flex-col justify-center items-start">
-                  <h1
-                    className={`text-3xl transition ${
-                      opened === item.season_number ? "text-orange" : ""
-                    }`}
+                <Image
+                  width={154}
+                  src={imageResize(item.poster_path, 'w154')}
+                  alt={`${item.name} poster`}
+                />
+
+                <Stack justify="center" spacing="xs">
+                  <Title
+                    order={2}
+                    sx={(theme) => ({
+                      color: opened === item.season_number ? theme.colors.orange : '',
+                    })}
                   >
                     {item.name}
-                  </h1>
-                  <p className="text-xl text-gray-400">
+                  </Title>
+                  <Text component="p" size="lg">
                     {item.episodes.length} Episode
-                    {item.episodes.length === 1 ? "" : "s"}
-                  </p>
-                </div>
-              </div>
+                    {item.episodes.length === 1 ? '' : 's'}
+                  </Text>
+                </Stack>
+              </Paper>
 
               {opened === item.season_number && (
-                <div className="flex flex-col gap-4 overflow-hidden mt-4">
-                  {item.episodes.map((child, index) => (
+                <Paper shadow="xl" mt="md" py="md" withBorder>
+                  {item.episodes.map((e, index) => (
                     <Link
-                      key={child.episode_number}
+                      key={e.episode_number}
                       href={{
                         pathname: `/tv/${data.id}/episode`,
                         query: {
                           season: item.season_number,
-                          episode: child.episode_number,
+                          episode: e.episode_number,
                         },
                       }}
+                      passHref
                     >
-                      <a>
+                      <Anchor>
                         <div
-                          key={child.episode_number}
-                          className="flex items-center py-2 bg-dark-darken w-full rounded-lg overflow-hidden cursor-pointer hover:brightness-[80%] transition duration-300"
+                          key={e.episode_number}
+                          style={{
+                            display: 'flex',
+                            overflow: 'hidden',
+                            paddingTop: '0.5rem',
+                            paddingBottom: '0.5rem',
+                            transitionProperty:
+                              'background-color, border-color, color, fill, stroke, opacity, box-shadow, transform',
+                            transitionDuration: '300ms',
+                            alignItems: 'center',
+                            width: '100%',
+                            borderRadius: '0.5rem',
+                            cursor: 'pointer',
+                          }}
                         >
-                          <div className="w-10 hidden md:flex flex-shrink-0 justify-center items-center">
-                            <h1 className="text-center">{index + 1}</h1>
-                          </div>
+                          <Box
+                            sx={() => ({
+                              display: 'none',
+                              flexShrink: 0,
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              width: '2.5rem',
+                              ['@media (min-width: 768px)']: {
+                                display: 'flex',
+                              },
+                            })}
+                          >
+                            <Title order={3} align="center">
+                              {index + 1}
+                            </Title>
+                          </Box>
                           <Image
-                            className="w-[154px] h-[87px] flex-shrink-0 mr-4 object-cover rounded-md"
-                            src={imageResize(child.still_path, "w154")}
+                            style={{
+                              objectFit: 'cover',
+                              marginRight: '1rem',
+                              flexShrink: 0,
+                              borderRadius: '0.375rem',
+                              width: '154px',
+                              height: '87px',
+                            }}
+                            src={imageResize(e.still_path, 'w154')}
                             alt=""
                           />
-                          <div className="flex-grow">
-                            <h1>{child.name}</h1>
-                            <p className="text-gray-400">{child.air_date}</p>
+                          <div
+                            style={{
+                              flexGrow: 1,
+                            }}
+                          >
+                            <Title order={3}>{e.name}</Title>
+                            <Text weight="lighter" size="md">
+                              {e.air_date}
+                            </Text>
                           </div>
                         </div>
-                      </a>
+                      </Anchor>
                     </Link>
                   ))}
-                </div>
+                </Paper>
               )}
             </Fragment>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Container>
     </>
   );
 };
@@ -150,7 +242,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: [],
-    fallback: "blocking",
+    fallback: 'blocking',
   };
 };
 

@@ -2,13 +2,20 @@ import Link from 'next/link';
 import { Fragment, useState } from 'react';
 import type { NextPage } from 'next';
 import { GetServerSideProps } from 'next';
+
+// Mantine UI
+import { Anchor, Box, Paper, Text, Title } from '@mantine/core';
+
+// Utils
 import { Detail, Episode, Season } from '@/utils/types';
 import { embedEpisode, imageOriginal, imageResize } from '@/utils/constants';
+import { getTVSeasons } from '@/utils/api';
 
+// Components
 import Image from '@/components/Shared/Image';
 import Meta from '@/components/Shared/Meta';
-import StarRating from '@/components/Display/StarRating';
-import { getTVSeasons } from '@/utils/api';
+import StarRating from '@/components/Shared/StarRating';
+import { HEADER_HEIGHT } from '@/components/Layout/Header';
 
 interface TVEpisodeProps {
   seasons: Season[];
@@ -28,24 +35,69 @@ const TVEpisode: NextPage<TVEpisodeProps> = ({ seasons, data, seasonId, episodeI
         description="Watch TV Episode"
         image={imageOriginal(episode.still_path)}
       />
-      <div className="mt-28 flex flex-col lg:flex-row px-5 lg:px-20 gap-8">
-        <div className="flex-grow">
-          <div className="relative h-0 w-full" style={{ paddingBottom: '56.25%' }}>
+      <Box
+        sx={() => ({
+          display: 'flex',
+          paddingLeft: '1.25rem',
+          paddingRight: '1.25rem',
+          marginTop: `${HEADER_HEIGHT + 20}px`,
+          flexDirection: 'column',
+          gap: '2rem',
+          '@media (min-width: 1024px)': {
+            paddingLeft: '5rem',
+            paddingRight: '5rem',
+            flexDirection: 'row',
+          },
+        })}
+      >
+        <div
+          style={{
+            flexGrow: 1,
+          }}
+        >
+          <div style={{ paddingBottom: '56.25%', position: 'relative', width: '100%', height: 0 }}>
             <iframe
-              className="absolute top-0 left-0 w-full h-full"
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+              }}
               src={embedEpisode(data.id, seasonId, episodeId)}
               title="YouTube video player"
               frameBorder="0"
               allowFullScreen
-            ></iframe>
+            />
           </div>
-          <div className="my-10 flex flex-col items-start gap-2">
-            <Link href={`/tv/${data.id}`}>
-              <a className="text-2xl hover:text-orange transition">{data.name}</a>
+          <div
+            style={{
+              display: 'flex',
+              marginTop: '2.5rem',
+              marginBottom: '2.5rem',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              gap: '1rem',
+            }}
+          >
+            <Link href={`/tv/${data.id}`} passHref>
+              <Anchor
+                sx={(theme) => ({
+                  transitionProperty:
+                    'background-color, border-color, color, fill, stroke, opacity, box-shadow, transform',
+                  fontSize: '1.5rem',
+                  lineHeight: '2rem',
+                  '&:hover': {
+                    color: theme.colors.orange,
+                  },
+                })}
+              >
+                {data.name}
+              </Anchor>
             </Link>
-            <h1 className="text-xl">{episode.name}</h1>
-            <p>{episode.overview}</p>
-            <p>Release Date: {episode.air_date}</p>
+            <Title>{episode.name}</Title>
+            <Text>{episode.overview}</Text>
+            <Text>Release Date: {episode.air_date}</Text>
             <StarRating
               maximum={10}
               stars={Math.round(episode.vote_average)}
@@ -53,75 +105,137 @@ const TVEpisode: NextPage<TVEpisodeProps> = ({ seasons, data, seasonId, episodeI
             />
           </div>
         </div>
-        <div className="flex-shrink-0 w-full lg:w-80 flex flex-col gap-2">
-          <h1 className="text-xl">Other episodes</h1>
+        <Box
+          sx={() => ({
+            display: 'flex',
+            flexDirection: 'column',
+            flexShrink: 0,
+          })}
+        >
+          <Title order={3}>Other episodes</Title>
           {seasons.map((item) => (
             <Fragment key={item.season_number}>
-              <div
-                className="flex gap-2 mt-1 bg-dark-lighten rounded overflow-hidden cursor-pointer hover:brightness-90 transition duration-300"
+              <Paper
+                withBorder
+                shadow="sm"
+                p="xs"
+                mt="xs"
+                radius="xs"
+                sx={(theme) => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  overflow: 'hidden',
+                  gap: '0.5rem',
+                  transitionProperty:
+                    'background-color, border-color, color, fill, stroke, opacity, box-shadow, transform',
+                  transitionDuration: '300ms',
+                  cursor: 'pointer',
+                  backgroundColor:
+                    theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+
+                  '&:hover': {
+                    backgroundColor:
+                      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[3],
+                  },
+                })}
                 onClick={() =>
                   opened === item.season_number
                     ? setOpened(undefined)
                     : setOpened(item.season_number)
                 }
               >
-                <div className="w-[45px] h-[68px] flex-shrink-0">
-                  <Image
-                    className="w-full h-full"
-                    src={imageResize(item.poster_path, 'w45')}
-                    alt=""
-                  />
-                </div>
-                <div className="flex flex-col justify-center items-start">
-                  <h1
-                    className={`text-lg transition ${
-                      opened === item.season_number ? 'text-orange' : ''
-                    }`}
-                  >
-                    {item.name}
-                  </h1>
-                </div>
-              </div>
+                <Image
+                  width={45}
+                  src={imageResize(item.poster_path, 'w45')}
+                  alt={`${item.name} poster`}
+                />
+
+                <Title
+                  order={5}
+                  align="center"
+                  sx={(theme) => ({
+                    color: opened === item.season_number ? theme.colors.orange : '',
+                  })}
+                >
+                  {item.name}
+                </Title>
+              </Paper>
 
               {opened === item.season_number && (
-                <div className="flex flex-col gap-2">
-                  {item.episodes.map((child) => (
+                <Box
+                  mt="xs"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                  }}
+                >
+                  {item.episodes.map((e) => (
                     <Link
-                      key={child.episode_number}
+                      key={e.episode_number}
                       href={{
                         pathname: `/tv/${data.id}/episode`,
                         query: {
                           season: item.season_number,
-                          episode: child.episode_number,
+                          episode: e.episode_number,
                         },
                       }}
+                      passHref
                     >
-                      <a>
-                        <div className="flex items-center bg-dark-darken w-full rounded-lg overflow-hidden cursor-pointer hover:brightness-[80%] transition duration-300">
+                      <Anchor>
+                        <Paper
+                          sx={(theme) => ({
+                            display: 'flex',
+                            flexShrink: 0,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            '&:hover': {
+                              backgroundColor:
+                                theme.colorScheme === 'dark'
+                                  ? theme.colors.dark[5]
+                                  : theme.colors.gray[3],
+                            },
+                          })}
+                          radius="xs"
+                          shadow="lg"
+                          withBorder
+                        >
                           <Image
-                            className="w-[154px] h-[87px] flex-shrink-0 mr-4 object-cover rounded-md"
-                            src={imageResize(child.still_path, 'w154')}
+                            style={{
+                              objectFit: 'cover',
+                              marginRight: '1rem',
+                              flexShrink: 0,
+                              borderRadius: '0.375rem',
+                              width: '154px',
+                            }}
+                            src={imageResize(e.still_path, 'w154')}
                             alt=""
                           />
-                          <div className="flex-grow">
-                            <p
-                              className={`${
-                                child.episode_number === Number(episodeId) ? 'text-orange' : ''
-                              }`}
+                          <div
+                            style={{
+                              flexGrow: 1,
+                            }}
+                          >
+                            <Text
+                              sx={(theme) => ({
+                                color:
+                                  e.episode_number === Number(episodeId) ? theme.colors.orange : '',
+                              })}
+                              style={{}}
                             >
-                              Episode {child.episode_number}
-                            </p>
+                              Episode {e.episode_number}
+                            </Text>
                           </div>
-                        </div>
-                      </a>
+                        </Paper>
+                      </Anchor>
                     </Link>
                   ))}
-                </div>
+                </Box>
               )}
             </Fragment>
           ))}
-        </div>
-      </div>
+        </Box>
+      </Box>
     </>
   );
 };

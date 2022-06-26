@@ -1,17 +1,20 @@
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 
-import { Anchor, Badge, Box, Button, Container, Grid, Group, Text, Title } from '@mantine/core';
+// Mantine UI
+import { Anchor, Badge, Box, Button, Grid, Group, Modal, Text, Title } from '@mantine/core';
+import { FaPlayCircle, FaYoutube } from 'react-icons/fa';
 
-import { FaPlayCircle, FaYoutube, FaTimes } from 'react-icons/fa';
+// Utils
 import { imageOriginal, imageResize } from '@/utils/constants';
-
-import Image from '../Shared/Image';
 import { Cast, Detail, Item, VideoTrailer } from '@/utils/types';
+
+// Components
+import Image from '../Shared/Image';
 import Meta from '../Shared/Meta';
 import MovieSlider from '../Movie/MovieSlider';
-import StarRating from '../Display/StarRating';
+import StarRating from '../Shared/StarRating';
 
 interface ItemViewProps {
   media_type: 'movie' | 'tv';
@@ -23,6 +26,7 @@ interface ItemViewProps {
 
 const ItemView: NextPage<ItemViewProps> = ({ media_type, data, casts, similar, videos }) => {
   const [trailerModalOpened, setTrailerModalOpened] = useState(false);
+  const isTrailer = videos.length > 0;
 
   return (
     <>
@@ -112,12 +116,15 @@ const ItemView: NextPage<ItemViewProps> = ({ media_type, data, casts, similar, v
               ) : (
                 <></>
               )}
-              {videos.length > 0 && (
-                <Button onClick={() => setTrailerModalOpened(true)}>
-                  <Anchor>
-                    <Button leftIcon={<FaYoutube size={14} />}>Watch Trailer</Button>
-                  </Anchor>
-                </Button>
+              {isTrailer && (
+                <Anchor>
+                  <Button
+                    onClick={() => setTrailerModalOpened(true)}
+                    leftIcon={<FaYoutube size={14} />}
+                  >
+                    Watch Trailer
+                  </Button>
+                </Anchor>
               )}
             </Group>
             <Title
@@ -156,7 +163,7 @@ const ItemView: NextPage<ItemViewProps> = ({ media_type, data, casts, similar, v
             {data.genres && (
               <Group>
                 {data.genres.map((item) => (
-                  <Badge size="lg" variant="gradient">
+                  <Badge size="lg" variant="gradient" key={item.name}>
                     {item.name}
                   </Badge>
                 ))}
@@ -199,14 +206,10 @@ const ItemView: NextPage<ItemViewProps> = ({ media_type, data, casts, similar, v
               </Title>
               <Grid>
                 {casts.map((item) => (
-                  <Grid.Col xl={1} lg={2} md={2} sm={2} span={3}>
-                    <Image
-                      className="w-full h-auto object-cover rounded-xl"
-                      src={imageResize(item.profile_path)}
-                      alt=""
-                    />
-                    <p className="text-center">{item.name}</p>
-                    <p className="text-orange text-center">{item.character}</p>
+                  <Grid.Col xl={1} lg={2} md={2} sm={2} span={3} key={item.id}>
+                    <Image src={imageResize(item.profile_path)} alt="" />
+                    <Text size="xl">{item.name}</Text>
+                    <Text size="sm">as {item.character}</Text>
                   </Grid.Col>
                 ))}
               </Grid>
@@ -222,40 +225,49 @@ const ItemView: NextPage<ItemViewProps> = ({ media_type, data, casts, similar, v
           </>
         )}
       </Box>
-      {/* {trailerModalOpened && (
-        <div
-          onClick={() => setTrailerModalOpened(false)}
-          className="fixed top-0 left-0 z-[60] w-screen h-screen flex justify-center items-center bg-[#2a2a2a80]"
+      {isTrailer && (
+        <Modal
+          opened={trailerModalOpened}
+          onClose={() => setTrailerModalOpened(false)}
+          title="Movie Trailer"
+          styles={{
+            modal: {
+              width: '56.25%',
+            },
+          }}
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-h-screen max-w-xl flex flex-col gap-3 items-start overflow-y-auto bg-dark-lighten p-5 rounded-lg"
-          >
-            <div className="flex justify-between w-full">
-              <h1 className="text-2xl ml-2">Movie Trailer</h1>
-              <Button className="cursor-pointer" onClick={() => setTrailerModalOpened(false)}>
-                <FaTimes size={30} />
-              </Button>
-            </div>
-            {videos.length > 0 &&
-              videos.map((item) => (
-                <Fragment key={item.key}>
-                  <h1 className="text-lg mx-2 mt-4">{item.name}</h1>
-                  <div className="relative h-0 w-full" style={{ paddingBottom: '56.25%' }}>
-                    <iframe
-                      className="absolute top-0 left-0 w-full h-full"
-                      src={`https://www.youtube.com/embed/${item.key}`}
-                      title="YouTube video player"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                </Fragment>
-              ))}
-          </div>
-        </div>
-      )} */}
+          {videos.map((item) => (
+            <Box key={item.key} my="lg">
+              <Title order={2} mx="md" mt="lg">
+                {item.name}
+              </Title>
+              <Box
+                style={{
+                  position: 'relative',
+                  paddingBottom: '56.25%',
+                  width: '100%',
+                  height: 0,
+                }}
+              >
+                <iframe
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                  }}
+                  src={`https://www.youtube.com/embed/${item.key}`}
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </Box>
+            </Box>
+          ))}
+        </Modal>
+      )}
     </>
   );
 };

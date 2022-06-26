@@ -10,7 +10,7 @@ export function ColorSchemeToggle() {
       variant="transparent"
       size="xl"
       sx={(theme) => ({
-        color: theme.colorScheme === 'dark' ? theme.colors.yellow[4] : theme.colors.blue[6],
+        color: theme.colorScheme === 'dark' ? theme.colors.yellow[4] : theme.primaryColor,
       })}
     >
       {colorScheme === 'dark' ? (

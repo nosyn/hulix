@@ -20,8 +20,6 @@ interface HomePageProps {
 }
 
 const HomePage: NextPage<HomePageProps> = ({ data, main }) => {
-  const imageRef = useRef<HTMLImageElement>(null);
-
   return (
     <>
       <Meta
@@ -43,7 +41,6 @@ const HomePage: NextPage<HomePageProps> = ({ data, main }) => {
         })}
       >
         <Image
-          ref={imageRef}
           src={imageOriginal(main.backdrop_path)}
           fit="cover"
           sx={() => ({

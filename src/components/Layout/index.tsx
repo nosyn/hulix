@@ -34,13 +34,21 @@ const Layout = ({ children }: LayoutProps) => {
       header={<Header />}
     >
       <Global
-        styles={() => ({
+        styles={(theme) => ({
           ':root': {
             '--doc-height': '100%',
             '--doc-width': '100%',
           },
           '*, *::before, *::after': {
             boxSizing: 'border-box',
+          },
+
+          body: {
+            ...theme.fn.fontStyles(),
+            backgroundColor:
+              theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.indigo[1],
+            color: theme.colorScheme === 'dark' ? theme.colors.dark[1] : theme.colors.indigo[7],
+            lineHeight: theme.lineHeight,
           },
         })}
       />

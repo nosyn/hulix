@@ -1,10 +1,6 @@
 import { Image as MIMage } from '@mantine/core';
-import type { ImageProps as MImageProps } from '@mantine/core';
-import { Ref, useState } from 'react';
-
-interface ImageProps extends MImageProps {
-  ref?: Ref<HTMLDivElement>;
-}
+import type { ImageProps } from '@mantine/core';
+import { useState } from 'react';
 
 const Image = ({ ...rest }: ImageProps) => {
   const [error, setError] = useState(false);

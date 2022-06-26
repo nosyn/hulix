@@ -5,7 +5,7 @@ import type { NextPage } from 'next';
 // Mantine UI
 import { Anchor, Group, useMantineTheme, Header as MHeader } from '@mantine/core';
 import { useWindowScroll } from '@mantine/hooks';
-import { ColorSchemeToggle } from '../ColorSchemeToggle/ColorSchemeToggle';
+import { ColorSchemeToggle } from '../Shared/ColorSchemeToggle';
 
 export const HEADER_HEIGHT = 60;
 
@@ -17,7 +17,13 @@ const Header: NextPage = () => {
     <MHeader
       sx={(themed) => {
         return {
-          backgroundColor: themed.fn.rgba(theme.primaryColor, scroll.y < 300 ? 0 : 0.5),
+          backgroundColor: themed.fn.rgba(
+            theme.colorScheme === 'dark' ? theme.primaryColor : theme.colors.indigo[2],
+            scroll.y < 300 ? 0 : 0.7
+          ),
+          transitionProperty:
+            'background-color, border-color, color, fill, stroke, opacity, box-shadow, transform',
+          transitionDuration: '500ms',
           border: '0px',
         };
       }}
